@@ -1,0 +1,68 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Generate a Noisy Signal
+def generate_noisy_signal(freq, amp, noise_std, duration, sampling_rate):
+    t = np.arange(0, duration, 1/sampling_rate)
+    clean_signal = amp * np.sin(2 * np.pi * freq * t)
+    noise = np.random.normal(0, noise_std, clean_signal.shape)
+    noisy_signal = clean_signal + noise
+    return t, clean_signal, noisy_signal
+
+# Design a Low-pass Filter
+def design_lowpass_filter(cutoff_freq, sampling_rate, filter_order=4):
+    nyquist_freq = 0.5 * sampling_rate
+    normalized_cutoff_freq = cutoff_freq / nyquist_freq
+    b, a = signal.butter(filter_order, normalized_cutoff_freq, btype='low')
+    return b, a
+
+# Apply the Filter
+def apply_filter(signal_data, b, a):
+    filtered_signal = signal.filtfilt(b, a, signal_data)
+    return filtered_signal
+
+# Parameters
+frequency = 1  # Hz
+amplitude = 1
+noise_std_dev = 0.5
+duration = 10  # seconds
+sampling_rate = 1000  # Hz
+cutoff_frequency = 10  # Hz
+filter_order = 4
+
+# Generate Noisy Signal
+time, clean_signal, noisy_signal = generate_noisy_signal(frequency, amplitude, noise_std_dev, duration, sampling_rate)
+
+# Design Low-pass Filter
+b, a = design_lowpass_filter(cutoff_frequency, sampling_rate, filter_order)
+
+# Apply the Filter
+filtered_signal = apply_filter(noisy_signal, b, a)
+
+# Plot Results
+plt.figure(figsize=(10, 8))
+
+plt.subplot(3, 1, 1)
+plt.plot(time, clean_signal, label='Original Signal')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('Original Signal')
+plt.legend()
+
+plt.subplot(3, 1, 2)
+plt.plot(time, noisy_signal, label='Noisy Signal', color='red')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('Noisy Signal')
+plt.legend()
+
+plt.subplot(3, 1, 3)
+plt.plot(time, filtered_signal, label='Filtered Signal', color='green')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('Filtered Signal')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
