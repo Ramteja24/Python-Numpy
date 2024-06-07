@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read Astronomical Data
+def read_data(file_path):
+    data = np.genfromtxt(file_path, delimiter=',', skip_header=1)
+    return data
+
+# Data Cleaning and Preprocessing
+def clean_data(data):
+    # Handle missing or invalid data values
+    data = np.nan_to_num(data, nan=np.nanmean(data), posinf=np.nanmean(data), neginf=np.nanmean(data))
+    # Normalize the data
+    data = (data - np.min(data, axis=0)) / (np.max(data, axis=0) - np.min(data, axis=0))
+    return data
+
+# Statistical Analysis
+def analyze_data(data):
+    # Compute descriptive statistics
+    mean = np.mean(data, axis=0)
+    median = np.median(data, axis=0)
+    std_dev = np.std(data, axis=0)
+    # Identify outliers
+    outliers = []
+    for i in range(data.shape[1]):
+        column = data[:, i]
+        q1 = np.percentile(column, 25)
+        q3 = np.percentile(column, 75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        outliers.append(np.where((column < lower_bound) | (column > upper_bound))[0])
+    return mean, median, std_dev, outliers
+
+# Data Visualization
+def visualize_data(data):
+    # Generate scatter plots
+    plt.figure(figsize=(10, 6))
+    for i in range(data.shape[1]):
+        plt.subplot(2, 3, i+1)
+        plt.scatter(range(len(data)), data[:, i], s=5)
+        plt.title(f'Attribute {i+1}')
+        plt.xlabel('Index')
+        plt.ylabel(f'Attribute {i+1}')
+    plt.tight_layout()
+    plt.show()
+
+    # Generate histograms
+    plt.figure(figsize=(10, 6))
+    for i in range(data.shape[1]):
+        plt.subplot(2, 3, i+1)
+        plt.hist(data[:, i], bins=20)
+        plt.title(f'Attribute {i+1}')
+        plt.xlabel(f'Attribute {i+1}')
+        plt.ylabel('Frequency')
+    plt.tight_layout()
+    plt.show()
+
+# Main function
+def main():
+    # Read data
+    file_path = 'astronomical_data.csv'
+    data = read_data(file_path)
+
+    # Data cleaning and preprocessing
+    cleaned_data = clean_data(data)
+
+    # Statistical analysis
+    mean, median, std_dev, outliers = analyze_data(cleaned_data)
+    print('Mean:', mean)
+    print('Median:', median)
+    print('Standard Deviation:', std_dev)
+    print('Outliers:', outliers)
+
+    # Data visualization
+    visualize_data(cleaned_data)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read Pixel Data
+def read_pixel_data(file_path):
+    pixel_data = np.loadtxt(file_path)
+    return pixel_data
+
+# Perform Image Reconstruction
+def reconstruct_image(pixel_data):
+    image = np.reshape(pixel_data, (pixel_data.shape[0], -1))
+    return image
+
+# Visualize Reconstructed Image
+def visualize_image(image):
+    plt.imshow(image, cmap='gray')
+    plt.title('Reconstructed Image')
+    plt.axis('off')
+    plt.show()
+
+# Main function
+def main():
+    # Read pixel data
+    file_path = 'pixel_data.txt'
+    pixel_data = read_pixel_data(file_path)
+
+    # Perform image reconstruction
+    image = reconstruct_image(pixel_data)
+
+    # Visualize reconstructed image
+    visualize_image(image)
+
+if __name__ == "__main__":
+    main()
